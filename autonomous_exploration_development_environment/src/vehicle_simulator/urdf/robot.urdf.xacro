@@ -1,0 +1,148 @@
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="example">
+
+  <xacro:macro name="gazebo_material" params="ref color">
+    <gazebo reference="${ref}">
+      <material>Gazebo/${color}</material>
+    </gazebo>
+  </xacro:macro>
+
+  <link name="base_origin">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.6 0.4 0.3"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="base_link_joint" type="fixed">
+    <origin xyz="0.0 0 -0.5" rpy="0 0 0"/>
+    <parent link="base_origin"/>
+    <child link="base_link"/>
+  </joint>
+
+  <link name="lidar_holder">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.03" length="0.35"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="lidar_holder_joint" type="fixed">
+    <origin xyz="0.0 0 -0.175" rpy="0 0 0"/>
+    <parent link="base_origin"/>
+    <child link="lidar_holder"/>
+  </joint>
+
+  <link name="left_front_wheel">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.15" length="0.1"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="left_front_joint" type="fixed">
+    <origin xyz="0.2 -0.25 -0.1" rpy="1.57 0 0"/>
+    <parent link="base_link"/>
+    <child link="left_front_wheel"/>
+  </joint>
+
+  <link name="right_front_wheel">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.15" length="0.1"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="rigth_front_joint" type="fixed">
+    <origin xyz="0.2 0.25 -0.1" rpy="-1.57 0 0"/>
+    <parent link="base_link"/>
+    <child link="right_front_wheel"/>
+  </joint>
+
+  <link name="left_rear_wheel">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.15" length="0.1"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="left_rear_joint" type="fixed">
+    <origin xyz="-0.2 -0.25 -0.1" rpy="1.57 0 0"/>
+    <parent link="base_link"/>
+    <child link="left_rear_wheel"/>
+  </joint>
+
+  <link name="right_rear_wheel">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.15" length="0.1"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="right_rear_joint" type="fixed">
+    <origin xyz="-0.2 0.25 -0.1" rpy="-1.57 0 0"/>
+    <parent link="base_link"/>
+    <child link="right_rear_wheel"/>
+  </joint>
+
+  <xacro:gazebo_material ref="base_link"         color="Red" />
+  <xacro:gazebo_material ref="lidar_holder"      color="Black" />
+  <xacro:gazebo_material ref="left_front_wheel"  color="Black" />
+  <xacro:gazebo_material ref="left_rear_wheel"   color="Black" />
+  <xacro:gazebo_material ref="right_front_wheel" color="Black" />
+  <xacro:gazebo_material ref="right_rear_wheel"  color="Black" />
+
+</robot>

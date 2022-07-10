@@ -1,0 +1,79 @@
+<launch>
+
+  <arg name="sensorOffsetX" default="0"/>
+  <arg name="sensorOffsetY" default="0"/>
+  <arg name="vehicleHeight" default="0.75"/>
+  <arg name="cameraOffsetZ" default="0"/>
+
+  <arg name="vehicleX" default="0"/>
+  <arg name="vehicleY" default="0"/>
+  <arg name="vehicleZ" default="0"/>
+  <arg name="terrainZ" default="0"/>
+  <arg name="vehicleYaw" default="0"/>
+
+  <arg name="terrainVoxelSize" default="0.05"/>
+  <arg name="groundHeightThre" default="0.1"/>
+  <arg name="adjustZ" default="true"/>
+  <arg name="terrainRadiusZ" default="1.0"/>
+  <arg name="minTerrainPointNumZ" default="5"/>
+  <arg name="smoothRateZ" default="0.5"/>
+  <arg name="adjustIncl" default="true"/>
+  <arg name="terrainRadiusIncl" default="2.0"/>
+  <arg name="minTerrainPointNumIncl" default="200"/>
+  <arg name="smoothRateIncl" default="0.5"/>
+  <arg name="InclFittingThre" default="0.2"/>
+  <arg name="maxIncl" default="30.0"/>
+
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="false"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="verbose" default="false"/>
+  <arg name="world_name" default="garage"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch" >
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="verbose" value="$(arg verbose)"/>
+    <arg name="world_name" value="$(find vehicle_simulator)/world/$(arg world_name).world"/>
+  </include>
+
+  <param name="camera_description" command="$(find xacro)/xacro --inorder '$(find vehicle_simulator)/urdf/camera.urdf.xacro'" />
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_camera" args="-urdf -param /camera_description -model camera"/>
+
+  <param name="lidar_description" command="$(find xacro)/xacro --inorder '$(find vehicle_simulator)/urdf/lidar.urdf.xacro'" />
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_lidar" args="-urdf -param /lidar_description -model lidar"/>
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find vehicle_simulator)/urdf/robot.urdf.xacro'" />
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_robot" args="-urdf -param /robot_description -model robot"/>
+
+  <node pkg="vehicle_simulator" type="vehicleSimulator" name="vehicleSimulator" output="screen" required="true">
+    <param name="use_gazebo_time" type="bool" value="false" />
+    <param name="sensorOffsetX" value="$(arg sensorOffsetX)" />
+    <param name="sensorOffsetY" value="$(arg sensorOffsetY)" />
+    <param name="vehicleHeight" value="$(arg vehicleHeight)" />
+    <param name="cameraOffsetZ" value="$(arg cameraOffsetZ)" />
+    <param name="vehicleX" value="$(arg vehicleX)" />
+    <param name="vehicleY" value="$(arg vehicleY)" />
+    <param name="vehicleZ" value="$(arg vehicleZ)" />
+    <param name="terrainZ" value="$(arg terrainZ)" />
+    <param name="vehicleYaw" value="$(arg vehicleYaw)" />
+    <param name="terrainVoxelSize" value="$(arg terrainVoxelSize)" />
+    <param name="groundHeightThre" value="$(arg groundHeightThre)" />
+    <param name="adjustZ" value="$(arg adjustZ)" />
+    <param name="terrainRadiusZ" value="$(arg terrainRadiusZ)" />
+    <param name="minTerrainPointNumZ" value="$(arg minTerrainPointNumZ)" />
+    <param name="smoothRateZ" value="$(arg smoothRateZ)" />
+    <param name="adjustIncl" value="$(arg adjustIncl)" />
+    <param name="terrainRadiusIncl" value="$(arg terrainRadiusIncl)" />
+    <param name="minTerrainPointNumIncl" value="$(arg minTerrainPointNumIncl)" />
+    <param name="smoothRateIncl" value="$(arg smoothRateIncl)" />
+    <param name="InclFittingThre" value="$(arg InclFittingThre)" />
+    <param name="maxIncl" value="$(arg maxIncl)" />
+  </node>
+
+</launch>

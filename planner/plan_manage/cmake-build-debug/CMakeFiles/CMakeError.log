@@ -1,0 +1,65 @@
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/dango/dango_file2/graduation_project/auto_exploration/src/ego-planner-master/planner/plan_manage/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_2640a/fast && /usr/bin/make  -f CMakeFiles/cmTC_2640a.dir/build.make CMakeFiles/cmTC_2640a.dir/build
+make[1]: 进入目录“/home/dango/dango_file2/graduation_project/auto_exploration/src/ego-planner-master/planner/plan_manage/cmake-build-debug/CMakeFiles/CMakeTmp”
+Building C object CMakeFiles/cmTC_2640a.dir/src.c.o
+/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_2640a.dir/src.c.o   -c /home/dango/dango_file2/graduation_project/auto_exploration/src/ego-planner-master/planner/plan_manage/cmake-build-debug/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_2640a
+/home/dango/dango_file/software/clion/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2640a.dir/link.txt --verbose=1
+/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_2640a.dir/src.c.o  -o cmTC_2640a 
+CMakeFiles/cmTC_2640a.dir/src.c.o：在函数‘main’中：
+src.c:(.text+0x3e)：对‘pthread_create’未定义的引用
+src.c:(.text+0x4a)：对‘pthread_detach’未定义的引用
+src.c:(.text+0x56)：对‘pthread_cancel’未定义的引用
+src.c:(.text+0x67)：对‘pthread_join’未定义的引用
+src.c:(.text+0x7b)：对‘pthread_atfork’未定义的引用
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_2640a.dir/build.make:106: recipe for target 'cmTC_2640a' failed
+make[1]: *** [cmTC_2640a] Error 1
+make[1]: 离开目录“/home/dango/dango_file2/graduation_project/auto_exploration/src/ego-planner-master/planner/plan_manage/cmake-build-debug/CMakeFiles/CMakeTmp”
+Makefile:141: recipe for target 'cmTC_2640a/fast' failed
+make: *** [cmTC_2640a/fast] Error 2
+
+
+Source file was:
+#include <pthread.h>
+
+void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_cancel(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/dango/dango_file2/graduation_project/auto_exploration/src/ego-planner-master/planner/plan_manage/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_d82e5/fast && /usr/bin/make  -f CMakeFiles/cmTC_d82e5.dir/build.make CMakeFiles/cmTC_d82e5.dir/build
+make[1]: 进入目录“/home/dango/dango_file2/graduation_project/auto_exploration/src/ego-planner-master/planner/plan_manage/cmake-build-debug/CMakeFiles/CMakeTmp”
+Building C object CMakeFiles/cmTC_d82e5.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_d82e5.dir/CheckFunctionExists.c.o   -c /home/dango/dango_file/software/clion/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/share/cmake-3.17/Modules/CheckFunctionExists.c
+Linking C executable cmTC_d82e5
+/home/dango/dango_file/software/clion/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d82e5.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_d82e5.dir/CheckFunctionExists.c.o  -o cmTC_d82e5  -lpthreads 
+/usr/bin/ld: 找不到 -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_d82e5.dir/build.make:106: recipe for target 'cmTC_d82e5' failed
+make[1]: *** [cmTC_d82e5] Error 1
+make[1]: 离开目录“/home/dango/dango_file2/graduation_project/auto_exploration/src/ego-planner-master/planner/plan_manage/cmake-build-debug/CMakeFiles/CMakeTmp”
+Makefile:141: recipe for target 'cmTC_d82e5/fast' failed
+make: *** [cmTC_d82e5/fast] Error 2
+
+
+

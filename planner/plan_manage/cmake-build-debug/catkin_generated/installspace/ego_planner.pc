@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: ego_planner
+Description: Description of ego_planner
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib -lego_planner
+Requires: plan_env path_searching bspline_opt traj_utils message_runtime mpc_controller
