@@ -47,7 +47,7 @@ In rviz , use  **2d nav goal** to set the goal :
 
 ![ego example](imag/ego example.gif)
 
-
+If you can't see the imag in this file, you can see it in the folder "imag".
 
 # THANKS
 
