@@ -25,7 +25,9 @@ Follow the official repository to download this package：[patchworl_github](htt
 
 ## Simulation environment
 
-The simulation environment uses the open source simulation environment of the CMU Robotics Institute. The meshes files in the simulation environment have been configured, and users just need to install he relevant libraries.
+The simulation environment uses the open source simulation environment of the CMU Robotics Institute. The meshes files in the simulation environment have been configured, and users just need to install the relevant libraries.
+
+The environment have two versions for ros-melodic and ros-noetic. The package in this project is for ros-melodic.
 
 [CMU-environment](https://www.cmu-exploration.com/)
 
