@@ -1,1 +1,0 @@
-set(ORDERED_PATHS "/home/dango/dango_file2/graduation_project/auto_exploration/devel/lib;/opt/ros/melodic/lib")
