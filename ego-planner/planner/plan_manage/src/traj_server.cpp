@@ -2,12 +2,10 @@
 #include "MPC.hpp"
 #include "nav_msgs/Odometry.h"
 #include "geometry_msgs/Twist.h"
-#include "nav_msgs/Path.h"
 #include "ego_planner/Bspline.h"
 #include "std_msgs/UInt8.h"
 #include "std_msgs/UInt8MultiArray.h"
 #include "geometry_msgs/PoseStamped.h"
-#include "geometry_msgs/TwistStamped.h"
 #include "tf/transform_listener.h"
 #include "tf/transform_datatypes.h"
 //#include "quadrotor_msgs/PositionCommand.h"
@@ -23,14 +21,8 @@
 
 ros::Publisher vel_cmd_pub;
 
-//MPC pub
-nav_msgs::Path mpc_path;
-ros::Publisher mpc_path_pub;
-ros::Publisher path_ref_pub,path_true_pub,path_time_pub;
-geometry_msgs::PoseStamped path_ref_temp,path_true_temp,path_time_temp;
-
 //quadrotor_msgs::PositionCommand cmd;
-geometry_msgs::TwistStamped cmd;
+geometry_msgs::Twist cmd;
 double pos_gain[3] = {0, 0, 0};
 double vel_gain[3] = {0, 0, 0};
 
@@ -52,7 +44,6 @@ geometry_msgs::PoseStamped pose_cur;
 tf::Quaternion quat;
 std_msgs::UInt8 is_adjust_pose;
 std_msgs::UInt8 dir;
-bool pub_info=false;
 
 enum DIRECTION {POSITIVE=0,NEGATIVE=1};
 
@@ -64,8 +55,6 @@ std_msgs::UInt8 stop_command;
 ////time record
 clock_t start_clock,end_clock;
 double duration;
-
-nav_msgs::Path path_ref,path_true,path_time;
 
 void bsplineCallback(ego_planner::BsplineConstPtr msg)
 {
@@ -125,7 +114,6 @@ void dirCallback(const std_msgs::UInt8ConstPtr& msg)
 
 void MPC_calculate(double &t_cur)
 {
-    start_clock = clock();
     std::vector<Eigen::Vector3d> X_r;
     std::vector<Eigen::Vector2d> U_r;
     Eigen::MatrixXd u_k;
@@ -134,7 +122,6 @@ void MPC_calculate(double &t_cur)
     Eigen::Vector3d x_r,x_r_1,x_r_2;
     double v_linear_1,w;
     double t_k,t_k_1;
-
 
     //ROS_INFO("Run to here!");
 
@@ -145,29 +132,6 @@ void MPC_calculate(double &t_cur)
     bool is_orientation_adjust=false;
     double orientation_adjust=0;
     pos_final = traj_[0].evaluateDeBoor(traj_duration_);
-
-    //record time
-    path_time_temp.pose.position.x = t_cur;
-    path_time.poses.push_back(path_time_temp);
-    //record current position
-    path_true_temp.pose.position.x = odom_pos_(0);
-    path_true_temp.pose.position.y = odom_pos_(1);
-    path_true_temp.pose.position.z = yaw;
-    path_true.poses.push_back(path_true_temp);
-    //path_true_pub.publish(path_true);
-
-    //record reference position
-    Eigen::Vector3d pos_ref = traj_[0].evaluateDeBoor(t_cur);
-    path_ref_temp.pose.position.x = pos_ref(0);
-    path_ref_temp.pose.position.y = pos_ref(1);
-    path_ref_temp.pose.position.z = yaw_start;
-    path_ref.poses.push_back(path_ref_temp);
-
-    //path_ref_pub.publish(path_ref);
-    path_true_pub.publish(path_true);
-    path_ref_pub.publish(path_ref);
-    path_time_pub.publish(path_time);
-
 
 //    if(abs(yaw-yaw_start)>yaw_error_max&&is_orientation_init==false)
 //    {
@@ -283,75 +247,49 @@ void MPC_calculate(double &t_cur)
         {
             X_k(2) = yaw;
         }
+        // cout<<"xr  : "<<X_r[0]<<endl;
+        // cout<<"xk  : "<<X_k<<endl;
 
         //ROS_INFO("Run to here!");
         u_k = mpc_controller.MPC_Solve_qp(X_k,X_r,U_r,N);
 
 
 //            cout<<"Xk "<<" : "<<endl<<X_k<<endl;
-        // if(dir.data == NEGATIVE)
-        // {
-        //     cmd.twist.linear.x = -u_k.col(0)(0);
-        // }
-        // else
-        // {
-            cmd.twist.linear.x = u_k.col(0)(0);
-        //}
+        if(dir.data == NEGATIVE)
+        {
+            cmd.linear.x = -u_k.col(0)(0);
+        }
+        else
+        {
+            cmd.linear.x = u_k.col(0)(0);
+        }
 
-        cmd.twist.angular.z = u_k.col(0)(1);
-//        static int conut1 = 0;
-//        conut1+=1;
-//        if(conut1%20==0)
-//        {
-//            ROS_WARN("U r :");
-//            for(int i=0;i<U_r.size();i++)
-//            {
-//                cout<<"vel ref :"<<U_r[i](0)<<","<<"w ref : "<<U_r[i](1);
-//                cout<<endl;
-//            }
-//            cout<<endl;
-//            cout<<"current vel : : "<<u_k.col(0)(0) <<"m/s"<<endl;
-//            cout<<"current w : "<<u_k.col(0)(1)<<"rad/s"<<endl;
-//            conut1=0;
-//        }
+        cmd.angular.z = u_k.col(0)(1);
+       static int conut1 = 0;
+       conut1+=1;
+       if(conut1%20==0)
+       {
+           ROS_WARN("U r :");
+           for(int i=0;i<U_r.size();i++)
+           {
+               cout<<"vel ref :"<<U_r[i](0)<<","<<"w ref : "<<U_r[i](1);
+               cout<<endl;
+           }
+           cout<<endl;
+           ROS_WARN("U k :");
+           for(int i=0;i<u_k.cols();i++)
+           {
+               cout<<"vel optimal :"<<u_k.col(i)(0)<<","<<"w optimal : "<<u_k.col(i)(1);
+               cout<<endl;
+           }
+           cout<<endl;
+           cout<<"current vel : : "<<u_k.col(0)(0) <<"m/s"<<endl;
+           cout<<"current w : "<<u_k.col(0)(1)<<"rad/s"<<endl;
+           conut1=0;
+       }
 
 
         vel_cmd_pub.publish(cmd);
-    double duration;
-    end_clock = clock();
-    duration = (double)(end_clock - start_clock) / CLOCKS_PER_SEC *1000;
-    //ROS_INFO("MPC solve time : %f ms",duration);
-
-    mpc_path.header.frame_id="map";
-    mpc_path.poses.clear();
-////计算预测轨迹并显示
-    Eigen::MatrixXd A_k = Eigen::MatrixXd::Zero(3,3);
-    Eigen::MatrixXd I = Eigen::MatrixXd::Identity(3,3);
-    Eigen::MatrixXd B_k = Eigen::MatrixXd::Zero(3,2);
-    Eigen::Vector3d X_k_1;
-    geometry_msgs::PoseStamped current_pose;
-    current_pose.pose.position.x =  odom_pos_(0);
-    current_pose.pose.position.y =  odom_pos_(1);
-    mpc_path.poses.push_back(current_pose);
-
-    for(int i=0;i<N;i++)
-    {
-        A_k(0,2) = -U_r[i](0)*sin(X_r[i](2));
-        A_k(1,2) = U_r[i](0)*cos(X_r[i](2));
-        B_k(0,0) = cos(X_r[i](2));
-        B_k(1,0) = sin(X_r[i](2));
-        B_k(2,1) = 1;
-        //u_k.col(i)(1)*=-1;
-        X_k_1 = (I+t_step*A_k)*X_k+t_step*B_k*u_k.col(i)-t_step*A_k*X_r[i];
-        X_k = X_k_1;
-        current_pose.pose.position.x = X_k_1(0);
-        current_pose.pose.position.y = X_k_1(1);
-        current_pose.pose.position.z = 0.75;
-        mpc_path.poses.push_back(current_pose);
-
-    }
-    mpc_path_pub.publish(mpc_path);
-    mpc_path.poses.clear();
 //        control_times+=1;
 //        //cout<<"control_times : "<<control_times<<endl;
 //        //cout<<"current t : "<<t_c<<endl;
@@ -395,16 +333,16 @@ void odometryCallback(const nav_msgs::OdometryConstPtr &msg)
     tf::quaternionMsgToTF(msg->pose.pose.orientation,quat);
     tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
 
-    // if(dir.data==NEGATIVE)
-    // {
-    //     if(yaw>0)
-    //     {
-    //         yaw -= PI;
-    //     }else if(yaw<0)
-    //     {
-    //         yaw += PI;
-    //     }
-    // }
+    if(dir.data==NEGATIVE)
+    {
+        if(yaw>0)
+        {
+            yaw -= PI;
+        }else if(yaw<0)
+        {
+            yaw += PI;
+        }
+    }
 
 }
 
@@ -413,8 +351,8 @@ void cmdCallback(const ros::TimerEvent &e)
     /* no publishing before receive traj_ */
     if (stop_command.data==1)
     {
-        cmd.twist.angular.z = 0;
-        cmd.twist.linear.x = 0;
+        cmd.angular.z = 0;
+        cmd.linear.x = 0;
         vel_cmd_pub.publish(cmd);
         return;
     }
@@ -442,9 +380,8 @@ void cmdCallback(const ros::TimerEvent &e)
     }
     else if (t_cur >= traj_duration_)
     {
-
-        cmd.twist.angular.z = 0;
-        cmd.twist.linear.x = 0;
+        cmd.angular.z = 0;
+        cmd.linear.x = 0;
         vel_cmd_pub.publish(cmd);
         is_orientation_init=false;
     }
@@ -455,12 +392,6 @@ void cmdCallback(const ros::TimerEvent &e)
     time_last = time_s;
 
     vel_cmd_pub.publish(cmd);
-}
-
-void display_mpc_path(Eigen::MatrixXd u_k)
-{
-
-
 }
 
 
@@ -476,22 +407,15 @@ int main(int argc, char **argv)
 
   ros::Subscriber bspline_sub = node.subscribe("/planning/bspline", 10, bsplineCallback);
   ros::Subscriber pose_sub = node.subscribe(pose_topic, 10, poseCallback);
-  ros::Subscriber odom_sub = node.subscribe("/state_estimation", 10, odometryCallback);
+  ros::Subscriber odom_sub = node.subscribe("/lvi_sam/lidar/mapping/odometry", 10, odometryCallback);
   ros::Subscriber stop_sub = node.subscribe("/emergency_stop",10,stopCallback);
   ros::Subscriber adjust_yaw_sub = node.subscribe("/is_adjust_yaw",10,adjust_yaw_Callback);
-  //ros::Subscriber command_sub = node.subscribe("/direction",10,dirCallback);
+  ros::Subscriber command_sub = node.subscribe("/direction",10,dirCallback);
 
-    path_ref.header.frame_id = "map";
-    path_true.header.frame_id = "map";
-    path_time.header.frame_id = "map";
-    path_ref_pub = node.advertise<nav_msgs::Path>("/path_ref",10);
-    path_true_pub = node.advertise<nav_msgs::Path>("/path_true",10);
-    path_time_pub = node.advertise<nav_msgs::Path>("/path_time",10);
   mpc_controller.MPC_init(node);
-  vel_cmd_pub = node.advertise<geometry_msgs::TwistStamped>("/cmd_vel", 50);
-  mpc_path_pub=node.advertise<nav_msgs::Path>("/mpc_path",10);
+  vel_cmd_pub = node.advertise<geometry_msgs::Twist>("/cmd_vel1", 50);
   stop_command.data = 0;
-  //dir.data = POSITIVE;
+  dir.data = POSITIVE;
   t_step = 0.03;
 
 

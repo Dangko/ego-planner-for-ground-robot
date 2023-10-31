@@ -1,11 +1,8 @@
 
 #include <plan_manage/ego_replan_fsm.h>
 
-
 #define PI 3.1415926
 #define yaw_error_max 25.0/180*PI
-
-
 
 namespace ego_planner
 {
@@ -49,7 +46,8 @@ namespace ego_planner
 
     bspline_pub_ = nh.advertise<ego_planner::Bspline>("/planning/bspline", 10);
     data_disp_pub_ = nh.advertise<ego_planner::DataDisp>("/planning/data_display", 100);
-    cmd_pub_ = nh.advertise<geometry_msgs::TwistStamped>("/cmd_vel",100);
+    // cmd_pub_ = nh.advertise<geometry_msgs::Twist>("/twd_velocity_controller/cmd_vel",100);
+    cmd_pub_ = nh.advertise<geometry_msgs::Twist>("/cmd_vel1",100);
     adjust_cmd_pub_ = nh.advertise<std_msgs::UInt8>("/is_adjust_yaw",100);
     odom_adjust_pub_ = nh.advertise<nav_msgs::Odometry>("/odom_adjust",100);
     dir_pub = nh.advertise<std_msgs::UInt8>("/direction",100);
@@ -58,10 +56,7 @@ namespace ego_planner
     is_target_receive = false;
 
     if (target_type_ == TARGET_TYPE::MANUAL_TARGET)
-    {
-        waypoint_sub_ = nh.subscribe("/way_point", 1, &EGOReplanFSM::goal_callback, this);
-
-    }
+      waypoint_sub_ = nh.subscribe("/way_point", 1, &EGOReplanFSM::goal_callback, this);
       //waypoint_sub_ = nh.subscribe("/waypoint_generator/waypoints", 1, &EGOReplanFSM::waypointCallback, this);
     else if (target_type_ == TARGET_TYPE::PRESET_TARGET)
     {
@@ -175,8 +170,8 @@ namespace ego_planner
 
 void EGOReplanFSM::goal_callback(const geometry_msgs::PoseStamped::ConstPtr &msg)
 {
-    //end_pt_ << msg->point.x, msg->point.y, odom_pos_(2);
     end_pt_ << msg->pose.position.x, msg->pose.position.y, odom_pos_(2);
+
     //cout << "Triggered!" << endl;
     trigger_ = true;
 
@@ -248,31 +243,10 @@ void EGOReplanFSM::goal_callback(const geometry_msgs::PoseStamped::ConstPtr &msg
         if (exec_state_ == WAIT_TARGET)
         {
             changeFSMExecState(GEN_NEW_TRAJ, "TRIG");
-            last_state_=GEN_NEW_TRAJ;
             is_target_receive = true;
         }
         else if (exec_state_ == EXEC_TRAJ)
         {
-
-          yaw_start = atan2(error_y,error_x);
-          yaw_error = yaw_start-yaw;
-          if(abs(yaw_error)>PI)
-          {
-              yaw_error = yaw_error - yaw_error/abs(yaw_error)*2*PI;
-          }
-
-          if(abs(yaw_error)>PI/2)
-          {
-              cmd_vel.twist.linear.x = 0;
-              cmd_vel.twist.angular.z = yaw_error/abs(yaw_error)*w_adjust;
-              std_msgs::UInt8 stop_cmd;
-              stop_cmd.data = 1;
-              stop_pub.publish(stop_cmd);
-              last_state_=EXEC_TRAJ;
-              changeFSMExecState(ADJUST_POSE, "TRIG");
-              
-              return;
-          }
             changeFSMExecState(REPLAN_TRAJ, "TRIG");
             is_target_receive=true;
         }
@@ -361,8 +335,8 @@ void EGOReplanFSM::goal_callback(const geometry_msgs::PoseStamped::ConstPtr &msg
           }
           else
           {
-              cmd_vel.twist.linear.x = 0;
-              cmd_vel.twist.angular.z = yaw_error/abs(yaw_error)*w_adjust;
+              cmd_vel.linear.x = 0;
+              cmd_vel.angular.z = yaw_error/abs(yaw_error)*w_adjust;
 
           }
       }
@@ -463,41 +437,33 @@ void EGOReplanFSM::goal_callback(const geometry_msgs::PoseStamped::ConstPtr &msg
             yaw_error = yaw_error - yaw_error/abs(yaw_error)*2*PI;
         }
         static int count=0;
-        // if(count%100==0)
-        // {
-        //     string directions[2] = {"POSITIVE","NAGETIVE"};
-        //     cout << "direction : "<<directions[int(dir)]<<endl;
-        //     cout<<"current yaw: "<<yaw<<endl;
-        //     cout<<"yaw error : "<<yaw_error<<endl;
-        //     count=0;
-        // }
+        if(count%100==0)
+        {
+            string directions[2] = {"POSITIVE","NAGETIVE"};
+            cout << "direction : "<<directions[int(dir)]<<endl;
+            cout<<"current yaw: "<<yaw<<endl;
+            cout<<"yaw error : "<<yaw_error<<endl;
+            count=0;
+        }
         count+=1;
         if(abs(yaw_error)>yaw_error_max)
         {
             is_adjust_pose.data = 1;
-            cmd_vel.twist.linear.x = 0;
-            cmd_vel.twist.angular.z = yaw_error/abs(yaw_error)*w_adjust;
+            cmd_vel.linear.x = 0;
+            cmd_vel.angular.z = yaw_error/abs(yaw_error)*w_adjust;
             cmd_pub_.publish(cmd_vel);
             adjust_cmd_pub_.publish(is_adjust_pose);
         }else
         {
-          if(last_state_==GEN_NEW_TRAJ)
-          {
-               is_adjust_pose.data = 0;
-            cmd_vel.twist.linear.x = 0;
-            cmd_vel.twist.angular.z =0;
+            is_adjust_pose.data = 0;
+            cmd_vel.linear.x = 0;
+            cmd_vel.angular.z =0;
             cmd_pub_.publish(cmd_vel);
             changeFSMExecState(EXEC_TRAJ, "FSM");
             adjust_cmd_pub_.publish(is_adjust_pose);
             auto info = &planner_manager_->local_data_;
             info->start_time_ = ros::Time::now();
             publishBspline();
-          }else if(last_state_==EXEC_TRAJ)
-          {
-            changeFSMExecState(GEN_NEW_TRAJ, "FSM");
-            last_state_=GEN_NEW_TRAJ;
-          }
-           
         }
         break;
     }
@@ -531,31 +497,31 @@ void EGOReplanFSM::goal_callback(const geometry_msgs::PoseStamped::ConstPtr &msg
           {
               yaw_error = yaw_error - yaw_error/abs(yaw_error)*2*PI;
           }
-          //cout<<"yaw error : "<<yaw_error<<endl;
-          // if(abs(yaw_error)>PI/2.0)
-          // {
-          //     if(yaw>0)
-          //     {
-          //         yaw -= PI;
-          //     }else if(yaw<0)
-          //     {
-          //         yaw += PI;
-          //     }
-          //     changeDirection();
-          //     //yaw_error = - yaw_error/abs(yaw_error)*(PI-abs(yaw_error));
-          //     yaw_error = yaw_start - yaw;
+          cout<<"yaw error : "<<yaw_error<<endl;
+          if(abs(yaw_error)>PI/2.0)
+          {
+              if(yaw>0)
+              {
+                  yaw -= PI;
+              }else if(yaw<0)
+              {
+                  yaw += PI;
+              }
+              changeDirection();
+              //yaw_error = - yaw_error/abs(yaw_error)*(PI-abs(yaw_error));
+              yaw_error = yaw_start - yaw;
 
-          // }
+          }
           if(abs(yaw_error)>yaw_error_max)
           {
-              cmd_vel.twist.linear.x = 0;
-              cmd_vel.twist.angular.z = yaw_error/abs(yaw_error)*w_adjust;
+              cmd_vel.linear.x = 0;
+              cmd_vel.angular.z = yaw_error/abs(yaw_error)*w_adjust;
               changeFSMExecState(ADJUST_POSE, "TRIG");
               last_state_ = GEN_NEW_TRAJ;
               is_target_receive=false;
               return;
           }
-          //cout<<"yaw error : "<<yaw_error<<endl;
+          cout<<"yaw error : "<<yaw_error<<endl;
         auto info = &planner_manager_->local_data_;
         info->start_time_ = ros::Time::now();
         publishBspline();
@@ -603,9 +569,6 @@ void EGOReplanFSM::goal_callback(const geometry_msgs::PoseStamped::ConstPtr &msg
       t_cur = min(info->duration_, t_cur);
 
       Eigen::Vector3d pos = info->position_traj_.evaluateDeBoorT(t_cur);
-      std_msgs::UInt8 stop_cmd;
-          stop_cmd.data = 0;
-          stop_pub.publish(stop_cmd);
 
       /* && (end_pt_ - pos).norm() < 0.5 */
       if (t_cur > info->duration_ - 1e-2)
@@ -676,26 +639,26 @@ void EGOReplanFSM::goal_callback(const geometry_msgs::PoseStamped::ConstPtr &msg
         {
             yaw_error = yaw_error - yaw_error/abs(yaw_error)*2*PI;
         }
-        // if(abs(yaw_error)>PI/2.0)
-        // {
-        //     if(yaw>0)
-        //     {
-        //         yaw -= PI;
-        //     }else if(yaw<0)
-        //     {
-        //         yaw += PI;
-        //     }
-        //     changeDirection();
-        //     //yaw_error = - yaw_error/abs(yaw_error)*(PI-abs(yaw_error));
-        //     yaw_error = yaw_start - yaw;
-        //     start_vel_ <<-start_vel_(0),-start_vel_(1),0;
-        //     start_acc_ <<-start_acc_(0),-start_acc_(1),0;
-        //     //callEmergencyStop(odom_pos_);
-        //     std_msgs::UInt8 stop_cmd;
-        //     stop_cmd.data = 1;
-        //     stop_pub.publish(stop_cmd);
+        if(abs(yaw_error)>PI/2.0)
+        {
+            if(yaw>0)
+            {
+                yaw -= PI;
+            }else if(yaw<0)
+            {
+                yaw += PI;
+            }
+            changeDirection();
+            //yaw_error = - yaw_error/abs(yaw_error)*(PI-abs(yaw_error));
+            yaw_error = yaw_start - yaw;
+            start_vel_ <<-start_vel_(0),-start_vel_(1),0;
+            start_acc_ <<-start_acc_(0),-start_acc_(1),0;
+            //callEmergencyStop(odom_pos_);
+            std_msgs::UInt8 stop_cmd;
+            stop_cmd.data = 1;
+            stop_pub.publish(stop_cmd);
 
-        // }
+        }
         is_target_receive = false;
     }
     //first step : calculate the yaw error

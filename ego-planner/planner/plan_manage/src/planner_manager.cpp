@@ -1,9 +1,6 @@
 // #include <fstream>
 #include <plan_manage/planner_manager.h>
 #include <thread>
-#include "time.h"
-
-clock_t start_clock,end_clock;
 
 namespace ego_planner
 {
@@ -47,7 +44,6 @@ namespace ego_planner
                                           Eigen::Vector3d local_target_vel, bool flag_polyInit, bool flag_randomPolyTraj)
     {
 
-        start_clock = clock();
         static int count = 0;
         std::cout << endl
                   << "[rebo replan]: -------------------------------------" << count++ << std::endl;
@@ -64,7 +60,7 @@ namespace ego_planner
 
         ros::Time t_start = ros::Time::now();
         ros::Duration t_init, t_opt, t_refine;
-        double duration;
+
         /*** STEP 1: INIT ***/
         double ts = (start_pt - local_target_pt).norm() > 0.1 ? pp_.ctrl_pt_dist / pp_.max_vel_ * 1.2 : pp_.ctrl_pt_dist / pp_.max_vel_ * 5; // pp_.ctrl_pt_dist / pp_.max_vel_ is too tense, and will surely exceed the acc/vel limits
         vector<Eigen::Vector3d> point_set, start_end_derivatives;
@@ -223,12 +219,8 @@ namespace ego_planner
         static int vis_id = 0;
         visualization_->displayInitPathList(point_set, 0.2, 0);
         visualization_->displayAStarList(a_star_pathes, vis_id);
-        end_clock = clock();
-        duration = (double)(end_clock - start_clock) / CLOCKS_PER_SEC *1000;
-        //cout<<"gradient time : "<<duration<<"ms"<<endl;
-        start_clock = clock();
-        t_start = ros::Time::now();
 
+        t_start = ros::Time::now();
 
         /*** STEP 2: OPTIMIZE ***/
         bool flag_step_1_success = bspline_optimizer_rebound_->BsplineOptimizeTrajRebound(ctrl_pts, ts);
@@ -243,10 +235,6 @@ namespace ego_planner
 
         t_opt = ros::Time::now() - t_start;
         t_start = ros::Time::now();
-        end_clock = clock();
-        duration = (double)(end_clock - start_clock) / CLOCKS_PER_SEC *1000;
-        //cout<<"gradient optimize time : "<<duration<<"ms"<<endl;
-        start_clock = clock();
 
         /*** STEP 3: REFINE(RE-ALLOCATE TIME) IF NECESSARY ***/
         UniformBspline pos = UniformBspline(ctrl_pts, 3, ts);
@@ -266,7 +254,7 @@ namespace ego_planner
 
          if (!flag_step_2_success)
          {
-          //printf("\033[34mThis refined trajectory hits obstacles. It doesn't matter if appeares occasionally. But if continously appearing, Increase parameter \"lambda_fitness\".\n\033[0m");
+          printf("\033[34mThis refined trajectory hits obstacles. It doesn't matter if appeares occasionally. But if continously appearing, Increase parameter \"lambda_fitness\".\n\033[0m");
           continous_failures_count_++;
           return false;
           }
@@ -275,16 +263,9 @@ namespace ego_planner
 
         // save planned results
         updateTrajInfo(pos, ros::Time::now());
-        end_clock = clock();
-        duration = (double)(end_clock - start_clock) / CLOCKS_PER_SEC *1000;
-        //cout<<"refine time : "<<duration<<"ms"<<endl;
-        start_clock = clock();
-        //cout << "total time:\033[42m" << (t_init + t_opt + t_refine).toSec() << "\033[0m,optimize:" << (t_init + t_opt).toSec() << ",refine:" << t_refine.toSec() << endl;
 
+        cout << "total time:\033[42m" << (t_init + t_opt + t_refine).toSec() << "\033[0m,optimize:" << (t_init + t_opt).toSec() << ",refine:" << t_refine.toSec() << endl;
 
-        end_clock = clock();
-        duration = (double)(end_clock - start_clock) / CLOCKS_PER_SEC *1000;
-        //cout<<"total time : "<<duration<<"ms"<<endl;
         // success. YoY
         continous_failures_count_ = 0;
         return true;
