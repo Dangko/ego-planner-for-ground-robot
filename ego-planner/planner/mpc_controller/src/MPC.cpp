@@ -4,8 +4,8 @@
 
 #define PI 3.1415926
 #define T 0.03
-#define w0 0.5
-#define w1 5.0
+#define w0 1.0
+#define w1 0.5
 #define Ku 1
 #define Kl 1
 
@@ -28,8 +28,8 @@ MatrixXd MPC_controller::MPC_Solve_qp(Eigen::Vector3d X_k,std::vector<Eigen::Vec
     MatrixXd A_r_init = MatrixXd::Zero(3,3);
     MatrixXd B_r_init = MatrixXd::Zero(3,2);
     MatrixXd eye_3 = MatrixXd::Identity(3,3);
-    MatrixXd Q = MatrixXd::Identity(3*N,3*N)*w0;
-    MatrixXd R = MatrixXd::Identity(3*N,3*N)*w1;
+    MatrixXd Q = MatrixXd::Identity(3*N,3*N)*omega0;
+    MatrixXd R = MatrixXd::Identity(3*N,3*N)*omega1;
 //    cout<<"Ur 1 : "<<endl<<U_r[0]<<endl;
 //    cout<<"Xr 1 : "<<endl<<X_r[0]<<endl;
 //    cout<<"Xk : "<<endl<<X_k<<endl;
@@ -125,6 +125,8 @@ void MPC_controller::MPC_init(ros::NodeHandle &nh)
 {
     nh.getParam("/ego_planner_node/MPC/v_max", v_max);
     nh.getParam("/ego_planner_node/MPC/w_max", w_max);
+    nh.getParam("/ego_planner_node/MPC/omega0", omega0);
+    nh.getParam("/ego_planner_node/MPC/omega1", omega1);
 
     // nh.param("/ego_planner_node/MPC/v_max",v_max,0.7);
     // nh.param("/ego_planner_node/MPC/w_max",w_max,0.3);

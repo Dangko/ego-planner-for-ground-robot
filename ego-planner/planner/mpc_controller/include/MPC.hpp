@@ -24,6 +24,7 @@ private:
     double v_min;
     double w_max;
     double w_min;
+    double omega0,omega1;
 };
 
 #endif

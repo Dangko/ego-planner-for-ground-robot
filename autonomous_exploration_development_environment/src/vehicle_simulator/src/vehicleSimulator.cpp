@@ -294,10 +294,10 @@ void terrainCloudHandler(const sensor_msgs::PointCloud2ConstPtr& terrainCloud2)
   }
 }
 
-void speedHandler(const geometry_msgs::TwistStamped::ConstPtr& speedIn)
+void speedHandler(const geometry_msgs::Twist::ConstPtr& speedIn)
 {
-  vehicleSpeed = speedIn->twist.linear.x;
-  vehicleYawRate = speedIn->twist.angular.z;
+  vehicleSpeed = speedIn->linear.x;
+  vehicleYawRate = speedIn->angular.z;
 }
 
 int main(int argc, char** argv)
@@ -331,7 +331,7 @@ int main(int argc, char** argv)
 
   ros::Subscriber subTerrainCloud = nh.subscribe<sensor_msgs::PointCloud2>("/terrain_map", 2, terrainCloudHandler);
 
-  ros::Subscriber subSpeed = nh.subscribe<geometry_msgs::TwistStamped>("/cmd_vel", 5, speedHandler);
+  ros::Subscriber subSpeed = nh.subscribe<geometry_msgs::Twist>("/cmd_vel", 5, speedHandler);
 
   ros::Publisher pubVehicleOdom = nh.advertise<nav_msgs::Odometry>("/state_estimation", 5);
 

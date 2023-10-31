@@ -70,7 +70,7 @@ namespace ego_planner
     int continously_called_times_{0};
 
     /* motion data */
-    geometry_msgs::TwistStamped cmd_vel;
+    geometry_msgs::Twist cmd_vel;
     std_msgs::UInt8 is_adjust_pose;
     double w_adjust;
     tf::Quaternion quat;

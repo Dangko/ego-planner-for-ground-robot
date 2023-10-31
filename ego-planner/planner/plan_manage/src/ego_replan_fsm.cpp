@@ -47,7 +47,7 @@ namespace ego_planner
     bspline_pub_ = nh.advertise<ego_planner::Bspline>("/planning/bspline", 10);
     data_disp_pub_ = nh.advertise<ego_planner::DataDisp>("/planning/data_display", 100);
     // cmd_pub_ = nh.advertise<geometry_msgs::Twist>("/twd_velocity_controller/cmd_vel",100);
-    cmd_pub_ = nh.advertise<geometry_msgs::Twist>("/cmd_vel1",100);
+    cmd_pub_ = nh.advertise<geometry_msgs::Twist>("/cmd_vel",100);
     adjust_cmd_pub_ = nh.advertise<std_msgs::UInt8>("/is_adjust_yaw",100);
     odom_adjust_pub_ = nh.advertise<nav_msgs::Odometry>("/odom_adjust",100);
     dir_pub = nh.advertise<std_msgs::UInt8>("/direction",100);
