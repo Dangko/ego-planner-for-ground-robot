@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!-- 摄像头相关的 xacro 文件 -->
+<robot name="my_camera" xmlns:xacro="http://wiki.ros.org/xacro">
+    <!-- 摄像头属性 -->
+    <xacro:property name="camera_length" value="0.05" /> <!-- 摄像头长度(x) -->
+    <xacro:property name="camera_width" value="0.08" /> <!-- 摄像头宽度(y) -->
+    <xacro:property name="camera_height" value="0.08" /> <!-- 摄像头高度(z) -->
+    <xacro:property name="camera_x" value="0.4" /> <!-- 摄像头安装的x坐标 -->
+    <xacro:property name="camera_y" value="0.0" /> <!-- 摄像头安装的y坐标 -->
+    <xacro:property name="camera_z" value="${base_z_size / 2 + camera_height / 2}" /> <!-- 摄像头安装的z坐标:底盘高度 / 2 + 摄像头高度 / 2  -->
+    <xacro:property name="camera_m" value="0.01" /> <!-- 摄像头质量 -->
+
+    <!-- 摄像头关节以及link -->
+    <link name="camera">
+        <visual>
+            <geometry>
+                <box size="${camera_length} ${camera_width} ${camera_height}" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <material name="black" />
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${camera_length} ${camera_width} ${camera_height}" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+        </collision>
+        <xacro:Box_inertial_matrix m="${camera_m}" l="${camera_length}" w="${camera_width}" h="${camera_height}" />
+        
+    </link>
+
+    <joint name="camera2base_link" type="fixed">
+        <parent link="base_link" />
+        <child link="camera" />
+        <origin xyz="${camera_x} ${camera_y} ${camera_z}" />
+    </joint>
+    <gazebo reference="camera">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+    
+    
+</robot>
+

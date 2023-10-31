@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">  
+
+    <xacro:macro name="imu" params="sensor_name parent_link *origin">
+
+        <xacro:property name="imu_offset_x" value="0" />
+        <xacro:property name="imu_offset_y" value="0" />
+        <xacro:property name="imu_offset_z" value="0.2" />
+        <xacro:property name="imu_size"     value="0.05" />
+        <xacro:property name="imu_m" value="0.01" /> <!-- imu质量 -->
+        <!-- imu -->
+        <joint name="imutobase" type="fixed">
+            <!-- <origin xyz="${imu_offset_x} ${imu_offset_y} ${imu_offset_z}" rpy="0 0 0" /> -->
+            <xacro:insert_block name="origin" />
+            <parent link="${parent_link}"/>
+            <child link="imu_base"/>
+        </joint>
+            
+        <link name="imu_base">
+            <visual>
+                <origin rpy="0 0 0" xyz="0 0 0" />
+                <geometry>
+                        <box size="${imu_size} ${imu_size} ${imu_size}"/>
+                </geometry>                
+                <material name= "black" >
+                <color rgba="1.0 0.0 0.0 0.6" />
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <box size="${imu_size} ${imu_size} ${imu_size}" />
+                </geometry>
+                <origin xyz="0.0 0.0 0" rpy="0.0 0.0 0.0" />
+            </collision>
+            <xacro:Box_inertial_matrix m = "${imu_m}" l = "${imu_size}" w = "${imu_size}" h = "${imu_size}"/>
+        </link>
+
+        <!-- 被引用的link -->
+        <gazebo reference="imu_base">
+            <material>Gazebo/Bule</material>
+            <gravity>true</gravity>
+            <sensor name="imu_sensor" type="imu">
+            <always_on>true</always_on>
+            <update_rate>100</update_rate>
+            <visualize>true</visualize>
+            <topic>__default_topic__</topic>
+            <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+                <topicName>imu/data</topicName>
+                <bodyName>imu_base</bodyName>
+                <updateRateHZ>100.0</updateRateHZ>
+                <gaussianNoise>0.01</gaussianNoise>
+                <xyzOffset>0 0 0</xyzOffset>     
+                <rpyOffset>0 0 0</rpyOffset>
+                <frameName>imu_base</frameName>        
+            </plugin>
+            <pose>0 0 0 0 0 0</pose>
+        </sensor>
+        </gazebo>
+
+    </xacro:macro>
+</robot>
+

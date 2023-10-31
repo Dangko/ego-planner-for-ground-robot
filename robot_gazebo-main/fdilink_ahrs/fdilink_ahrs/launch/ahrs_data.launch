@@ -1,0 +1,32 @@
+<launch>
+  <node pkg="fdilink_ahrs" name="ahrs_driver" type="ahrs_driver" output="screen" >
+    <!-- 是否输出debug信息 -->
+    <param name="debug"  value="false"/>
+    
+    <!-- 串口设备，可通过rules.d配置固定。
+     若使用DETA100,则value="/dev/wheeltec_ch340"
+     若使用WHEELTEC N系列，则不需要改动 -->
+
+    <param name="port"  value="/dev/linkIMU0"/>
+
+    <!-- 波特率 -->
+    <param name="baud"  value="921600"/>
+
+    <!-- 发布的imu话题名 -->
+    <param name="imu_topic"  value="ahrs_imu/data_raw"/>
+
+    <!-- 发布的imu话题中的frame_id -->
+    <param name="imu_frame"  value="gyro_link"/>
+
+    <!-- 地磁北的yaw角 -->
+    <!-- <param name="mag_pose_2d_topic"  value="/mag_pose_2d"/> -->
+    <!-- 欧拉角 -->
+    <!-- <param name="Euler_angles_pub_"  value="/euler_angles"/> -->
+    <!-- 磁力计磁场强度 -->
+    <!-- <param name="Magnetic_pub_"  value="/magnetic"/> -->
+
+    <!-- 发布的数据基于不同设备有不同的坐标系   -->
+    <param name="device_type"  value="1"/> <!-- 0: origin_data, 1: for single imu or ucar in ROS, 2:for Xiao in ROS -->
+  </node>
+
+</launch> 

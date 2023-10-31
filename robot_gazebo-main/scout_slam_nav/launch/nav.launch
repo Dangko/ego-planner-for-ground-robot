@@ -1,0 +1,22 @@
+<launch>
+
+	<!-- 运行gmapping -->
+    <include file="$(find scout_slam_nav)/launch/scout_gmapping.launch" />
+
+	<!-- 加载静态地图 -->
+    <include file="$(find scout_slam_nav)/launch/read_map.launch" />
+
+    <!-- 启动AMCL节点 
+    <include file="$(find scout_slam_nav)/launch/amcl.launch" />
+    -->
+	
+    <!-- 运行move_base节点 -->
+    <include file="$(find scout_slam_nav)/launch/move_base.launch" />
+    <!-- 运行rviz -->
+    <!--node pkg="joint_state_publisher" name="joint_state_publisher" type="joint_state_publisher" />
+    <node pkg="robot_state_publisher" name="robot_state_publisher" type="robot_state_publisher" /-->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find scout_slam_nav)/config/nav.rviz" />
+	  
+	  
+</launch>
+

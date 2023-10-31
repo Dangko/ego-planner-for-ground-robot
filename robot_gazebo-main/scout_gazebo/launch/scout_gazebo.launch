@@ -1,0 +1,37 @@
+<launch>
+    <!--- Sim Time -->
+    <!-- <param name="/use_sim_time" value="true" /> -->
+
+    <arg name = "model_xacro" default = "$(find scout_gazebo)/urdf/base.xacro" />
+    <!-- 将 Urdf 文件的内容加载到参数服务器 -->
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model_xacro)" />
+    <!-- Launch  the joint state publisher -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" ></node>
+    <!-- Launch  the robot state publisher -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+    <!-- Loading rviz files -->
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find scout_gazebo)/config/show_robot.rviz" />  -->
+    <!-- <arg name="paused" default="True"/>
+	<arg name="use_sim_time" default="true"/>
+	<arg name="gui" default="true"/>
+	<arg name="headless" default="false"/>
+	<arg name="verbose" default="true"/>
+	<arg name="debug" default="true"/> -->
+    <arg name="model_pose" default="-x 1.0 -y 1.0 -z 0.5 -R 0 -P 0 -Y 0" />
+    <!-- 在 gazebo 中启动一个环境 -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch"> 
+        <arg name="world_name" default="$(find gazebo_sim)/gazebo_maps/small_maze/smaze2d.world"/>
+        <!-- <arg name="world_name" value="$(find scout_gazebo)/worlds/forest10.world" />  -->
+    </include>
+    <!-- 在 gazebo 中加载机器人模型  -->
+    <node pkg="gazebo_ros" type="spawn_model" name="model" 
+    args="-urdf -param robot_description -model scout $(arg model_pose)"  />  
+
+    <param name="max_vel" 		value="1.0"/>
+    <param name="max_angular" 	value="0.6"/>
+	<node name="joy_control_node" pkg="joy_control" type="joy_control"/>
+	<node name="joy_node" pkg="joy" type="joy_node" output="screen">
+  		<param name ="joy_node/dev" value="/dev/input/js0" />
+	</node>
+</launch>

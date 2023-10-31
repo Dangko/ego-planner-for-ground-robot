@@ -1,0 +1,27 @@
+<launch>
+
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
+    	<param name="controller_frequency" value="5.0"/>
+    	<!--param name="base_global_planner" value="global_planner/GlobalPlanner"/-->
+        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />  
+    
+    
+    
+        <rosparam file="$(find scout_slam_nav)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find scout_slam_nav)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find scout_slam_nav)/param/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find scout_slam_nav)/param/global_costmap_params.yaml" command="load" />
+
+	<!--
+        <rosparam file="$(find scout_slam_nav)/param/base_local_planner_params.yaml" command="load" />
+    	-->
+    	
+    	<rosparam file="$(find scout_slam_nav)/param/dwa_param.yaml" command="load" />
+    	<rosparam file="$(find scout_slam_nav)/param/robot_param.yaml" command="load" />
+    	 <rosparam file="$(find scout_slam_nav)/param/move_base_params.yaml" command="load" />
+    <rosparam file="$(find scout_slam_nav)/param/dwa_local_planner_params.yaml" command="load" />
+    	
+    	
+    </node>
+
+</launch>

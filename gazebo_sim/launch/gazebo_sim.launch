@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot_namespace" default="/" />
+  <arg name="world_file" default="$(find gazebo_sim)/gazebo_maps/small_maze/smaze2d.world"/>
+  <arg name="model_pose" default="-x 0.0 -y 0 -z 0.5 -R 0 -P 0 -Y 0" />
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world_file)"/>
+	<arg name="gui" default="true"/>
+  </include>
+
+  <node pkg="tf" type="static_transform_publisher" name="world_to_camera_init" args="0 0 0 0 0 0 /world /camera_init 10" /><!--10ms-->
+  <node pkg="tf" type="static_transform_publisher" name="camera_to_link" args="0 0 -0.4 0 0 0 /aft_mapped /base_link 10" />
+
+
+  <include file="$(find scout_gazebo_sim)/launch/spawn_scout_v2.launch">
+  <arg name="x" value="1"/>
+  <arg name="y" value="1"/>
+  <arg name="z" value="1"/>
+  </include>
+
+</launch>

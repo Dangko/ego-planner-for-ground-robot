@@ -1,0 +1,9 @@
+<launch>
+  <node pkg="fdilink_ahrs" name="imu_tf" type="imu_tf" output="screen" >
+    <param name="imu_topic"  value="/imu"/>
+    <param name="position_x"  value="1"/>
+    <param name="position_y"  value="1"/>
+    <param name="position_z"  value="0"/>
+
+  </node>
+</launch> 

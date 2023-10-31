@@ -1,0 +1,7 @@
+image: smallcity.pgm
+resolution: 0.050000
+origin: [-138.533691, -87.377335, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+

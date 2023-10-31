@@ -1,0 +1,6 @@
+<launch>
+    <!-- 设置地图的配置文件 -->
+    <arg name="map" default="smallcity.yaml" />
+    <!-- 运行地图服务器，并且加载设置的地图-->
+    <node name="mymap" pkg="map_server" type="map_server" args="$(find scout_slam_nav)/map/$(arg map)"/>
+</launch>

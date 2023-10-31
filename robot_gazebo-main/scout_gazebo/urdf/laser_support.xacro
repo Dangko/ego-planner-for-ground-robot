@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<robot name="laser_support" xmlns:xacro="http://wiki.ros.org/xacro">
+    <!-- 雷达支架 -->
+    <xacro:property name="support_length" value="0.30" /> <!-- 支架长度 -->
+    <xacro:property name="support_radius" value="0.025" /> <!-- 支架半径 -->
+    <xacro:property name="support_x_size" value="-0.2" /> <!-- 支架安装的x坐标 -->
+    <xacro:property name="support_y_size" value="0.0" /> <!-- 支架安装的y坐标 -->
+    <xacro:property name="support_z_size" value="${base_z_size}" /> <!-- 支架安装的z坐标:底盘高度 / 2 + 支架高度 / 2  -->
+
+    <xacro:property name="support_m" value="0.02" /> <!-- 支架质量 -->
+
+    <link name="support">
+        <visual>
+            <geometry>
+                <cylinder radius="${support_radius}" length="${support_length}" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0.0 0.0 0.0" />
+            <material name="red">
+                <color rgba="0.8 0.2 0.0 0.8" />
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${support_radius}" length="${support_length}" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0.0 0.0 0.0" />
+        </collision>
+        <xacro:cylinder_inertial_matrix m="${support_m}" r="${support_radius}" h="${support_length}" />
+    </link>
+
+    <joint name="support2base_link" type="fixed">
+        <parent link="base_link" />
+        <child link="support" />
+        <origin xyz="${support_x_size} ${support_y_size} ${support_z_size}" />
+    </joint>
+    <gazebo reference="support">
+        <material>Gazebo/White</material>
+    </gazebo>
+</robot>

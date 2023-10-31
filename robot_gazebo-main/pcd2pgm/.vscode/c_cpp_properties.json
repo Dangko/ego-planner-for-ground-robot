@@ -1,0 +1,31 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/nvidia/ZED_ws/devel/include/**",
+        "/home/nvidia/robot_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/nvidia/liao/catkin_ws/src/astar_global_planner/include/**",
+        "/home/nvidia/liao/catkin_ws/src/better_astar_global_planner/include/**",
+        "/home/nvidia/robot_ws/src/fdilink_ahrs/fdilink_ahrs/include/**",
+        "/home/nvidia/robot_ws/src/LIO-SAM/include/**",
+        "/home/nvidia/robot_ws/src/pointcloud_to_laserscan/include/**",
+        "/home/nvidia/robot_ws/src/realsense_ros_gazebo/include/**",
+        "/home/nvidia/liao/catkin_ws/src/relaxed_astar_global_planner/include/**",
+        "/home/nvidia/robot_ws/src/velodyne_simulator/velodyne_gazebo_plugins/include/**",
+        "/home/nvidia/ZED_ws/src/zed-ros-wrapper/zed-ros-interfaces/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-arm64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

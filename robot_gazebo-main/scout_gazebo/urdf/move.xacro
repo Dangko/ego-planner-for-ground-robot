@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+
+<robot name="my_car_move" xmlns:xacro="http://wiki.ros.org/xacro">
+
+    <!-- 传动实现:用于连接控制器与关节 -->
+    <xacro:macro name="joint_trans" params="joint_name">
+        <!-- Transmission is important to link the joints and the controller -->
+        <transmission name="${joint_name}_trans">
+            <type>transmission_interface/SimpleTransmission</type>
+            <joint name="${joint_name}">
+                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+            </joint>
+            <actuator name="${joint_name}_motor">
+                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                <mechanicalReduction>1</mechanicalReduction>
+            </actuator>
+        </transmission>
+    </xacro:macro>
+
+    <!-- 每一个驱动轮都需要配置传动装置 -->
+    <xacro:joint_trans joint_name="front_left_wheel" />
+    <xacro:joint_trans joint_name="front_right_wheel" />
+    <xacro:joint_trans joint_name="rear_left_wheel" />
+    <xacro:joint_trans joint_name="rear_right_wheel" />
+    <!-- 控制器 -->
+    <gazebo>
+  		<plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
+    		<updateRate>100.0</updateRate>
+    		<robotNamespace>/</robotNamespace>
+    		<leftFrontJoint>front_left_wheel</leftFrontJoint>
+    		<rightFrontJoint>front_right_wheel</rightFrontJoint>
+    		<leftRearJoint>rear_left_wheel</leftRearJoint>
+    		<rightRearJoint>rear_right_wheel</rightRearJoint>
+    		<wheelSeparation>${track}</wheelSeparation>
+    		<wheelDiameter>${wheel_radius * 2}</wheelDiameter>
+    		<robotBaseFrame>base_link</robotBaseFrame>
+    		<torque>20</torque>
+    		<topicName>cmd_vel1</topicName>
+    		<broadcastTF>false</broadcastTF>
+  		</plugin>
+	</gazebo>
+	
+  <gazebo>
+    <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
+      <commandTopic>cmd_vel1</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <odometryRate>20.0</odometryRate>
+      <robotBaseFrame>base_link</robotBaseFrame>
+    </plugin>
+  </gazebo>
+
+</robot>
