@@ -38,10 +38,6 @@ link_directories(/usr/local/lib)
 add_definitions(${EIGEN3_DEFINITIONS})
 
 
-
-add_executable(solver app/example.cpp)
-target_link_libraries(solver ipopt)
-
 add_executable(qp_test app/qp_test.cpp)
 target_link_libraries(qp_test libqpOASES.so)
 
