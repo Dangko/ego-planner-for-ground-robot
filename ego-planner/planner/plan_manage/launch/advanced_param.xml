@@ -135,7 +135,7 @@
     <param name="MPC/v_max" value="1.8" type="double"/>
     <param name="MPC/w_max" value="1.2" type="double"/>
     <param name="MPC/omega0" value="1.0" type="double"/>
-    <param name="MPC/omega1" value="0.5" type="double"/>
+    <param name="MPC/omega1" value="0.1" type="double"/>
 
   </node>
 

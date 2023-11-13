@@ -29,7 +29,7 @@ MatrixXd MPC_controller::MPC_Solve_qp(Eigen::Vector3d X_k,std::vector<Eigen::Vec
     MatrixXd B_r_init = MatrixXd::Zero(3,2);
     MatrixXd eye_3 = MatrixXd::Identity(3,3);
     MatrixXd Q = MatrixXd::Identity(3*N,3*N)*omega0;
-    MatrixXd R = MatrixXd::Identity(3*N,3*N)*omega1;
+    MatrixXd R = MatrixXd::Identity(2*N,2*N)*omega1;
 //    cout<<"Ur 1 : "<<endl<<U_r[0]<<endl;
 //    cout<<"Xr 1 : "<<endl<<X_r[0]<<endl;
 //    cout<<"Xk : "<<endl<<X_k<<endl;
@@ -72,7 +72,7 @@ MatrixXd MPC_controller::MPC_Solve_qp(Eigen::Vector3d X_k,std::vector<Eigen::Vec
     //cout<<"C bar : "<<endl<<C_bar<<endl;
 
     MatrixXd E =A_bar*X_k+C_bar*O_r-X_ref;
-    MatrixXd Hesse = 2*B_bar.transpose()*(Q+R)*B_bar;      ////Hesse矩阵
+    MatrixXd Hesse = 2*(B_bar.transpose()*Q*B_bar+R);      ////Hesse矩阵
     VectorXd gradient = 2*B_bar.transpose()*Q*E;       ////一次项系数
 
 
