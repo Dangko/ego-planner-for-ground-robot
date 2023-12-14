@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="indoor">
+    <static>true</static>
+    <link name="link">
+      <inertial>
+        <pose>51.302 -2.2669 48.867 0 0 0</pose>
+        <mass>6533600</mass>
+        <inertia>
+          <ixx>1035800000</ixx>
+          <ixy>-1256500</ixy>
+          <ixz>69592000</ixz>
+          <iyy>2757500000</iyy>
+          <iyz>-11134000.0000001</iyz>
+          <izz>1760700000</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://indoor/meshes/indoor.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://indoor/meshes/indoor.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>
